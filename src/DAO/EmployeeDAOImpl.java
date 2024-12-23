@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import Controller.EmployeeController;
+import Controller.HolidayController;
 import Model.Employee;
 import Model.Poste;
 import Model.Role;
@@ -14,15 +15,13 @@ import View.EmployeeView;
 
 public class EmployeeDAOImpl implements GeneriqueDAOI<Employee>{
     private Connection connection;
-
     public EmployeeDAOImpl() {
         connection = DBConnection.getConnection();
     }
-
     @Override
     public List<Employee> afficher() {
-        String SQL = "SELECT * FROM employee";
         EmployeeController.viderLesChamps();
+        String SQL = "SELECT * FROM employee";
         List<Employee> employees = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
             try (ResultSet rset = stmt.executeQuery()) {
@@ -48,9 +47,8 @@ public class EmployeeDAOImpl implements GeneriqueDAOI<Employee>{
         return employees;
     }
     @Override
-    public void ajouter(Employee employee) {
+    public boolean ajouter(Employee employee) {
         String SQL = "INSERT INTO employee (nom, prenom, salaire, email, phone, role, poste, holidayBalance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        EmployeeController.viderLesChamps();
         try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
             stmt.setString(1, employee.getNom());
             stmt.setString(2, employee.getPrenom());
@@ -61,10 +59,14 @@ public class EmployeeDAOImpl implements GeneriqueDAOI<Employee>{
             stmt.setString(7, employee.getPoste().name());
             stmt.setInt(8, employee.getHolidayBalance());
             stmt.executeUpdate();
+            HolidayController.setEmployeesInComboBox();
+            EmployeeController.viderLesChamps();
             EmployeeView.AjouterSuccess(employee);
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
     @Override
     public Employee findById(int EmployeeId) {
@@ -88,7 +90,6 @@ public class EmployeeDAOImpl implements GeneriqueDAOI<Employee>{
     @Override
     public void modifier(Employee employee, int EmployeeId) {
         String SQL = "UPDATE employee SET nom = ?, prenom = ?, salaire = ?, email = ?, phone = ?, role = ?, poste = ? WHERE id = ?";
-        EmployeeController.viderLesChamps();
         try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
             stmt.setString(1, employee.getNom());
             stmt.setString(2, employee.getPrenom());
@@ -99,12 +100,13 @@ public class EmployeeDAOImpl implements GeneriqueDAOI<Employee>{
             stmt.setString(7, employee.getPoste().name());
             stmt.setInt(8, EmployeeId);
             stmt.executeUpdate();
+            HolidayController.setEmployeesInComboBox();
+            EmployeeController.viderLesChamps();
             EmployeeView.ModifierSuccess();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
     @Override
     public void supprimer(int EmployeeId) {
         String SQL = "DELETE FROM employee WHERE id = ?";
@@ -112,6 +114,7 @@ public class EmployeeDAOImpl implements GeneriqueDAOI<Employee>{
             EmployeeController.viderLesChamps();
             stmt.setInt(1, EmployeeId);
             stmt.executeUpdate();
+            HolidayController.setEmployeesInComboBox();
             EmployeeView.SupprimerSuccess();
         } catch (SQLException e) {
             e.printStackTrace();

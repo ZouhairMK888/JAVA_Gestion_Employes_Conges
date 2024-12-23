@@ -12,31 +12,29 @@ public class EmployeeModel {
         this.dao = dao;
     }
 
-    public void ajouterEmployee(String nom, String prenom, String salaire, String email, String phone, Role role, Poste poste) {
+    public boolean ajouterEmployee(String nom, String prenom, String salaire, String email, String phone, Role role, Poste poste) {
         double salaireDouble = Utils.parseDouble(salaire);
         if(nom.trim().isEmpty() || prenom.trim().isEmpty() || email.trim().isEmpty() || phone.trim().isEmpty() || salaireDouble == 0) {
             EmployeeView.AjouterFail("Veuillez remplir tous les champs.");
-            return;
+            return false;
         }
-
         if(!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             EmployeeView.AjouterFail("Veuillez entrer une adresse email valide.");
-            return;
+            return false;
         }
-        
         if(!phone.matches("^0\\d{9}$")) {
             EmployeeView.AjouterFail("Le numéro de téléphone doit contenir 10 chiffres");
-            return;
+            return false;
         }
         
-        if(Utils.parseDouble(salaire) < 0 ){
+        if(salaireDouble < 0 ){
             EmployeeView.AjouterFail("Le salaire doit être un nombre positif");
-            return;
+            return false;
         }
-        
         Employee employee = new Employee(0, nom, prenom, salaireDouble, email, phone, role, poste,25);
-        dao.ajouter(employee);
+        return dao.ajouter(employee);
     }
+
     public List<Employee> afficherEmployee() {
         return dao.afficher();
     }
@@ -49,7 +47,6 @@ public class EmployeeModel {
     public Employee findById(int id) {
         return dao.findById(id);
     }
-
     public void updateEmployee(Employee employee,int id,String nom,String prenom,String email,double salaire,String phone,Role role,Poste poste) {
         if(nom.trim().isEmpty() && prenom.trim().isEmpty() && email.trim().isEmpty() && phone.trim().isEmpty() && salaire == 0 && role == null && poste == null) {
             EmployeeView.ModifierFail("Veuillez remplir au moins un champ.");

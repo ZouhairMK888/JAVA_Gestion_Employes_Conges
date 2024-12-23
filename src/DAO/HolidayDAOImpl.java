@@ -4,15 +4,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.relation.Role;
-
 import Controller.EmployeeController;
 import Model.Employee;
 import Model.Holiday;
-import Model.HolidayModel;
 import Model.HolidayType;
 import Model.Poste;
-import View.EmployeeView;
 import View.HolidayView;
 
 public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
@@ -20,7 +16,6 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
     public HolidayDAOImpl() {
         connection = DBConnection.getConnection();
     }
-
     public List<Employee> afficherEmployee() {
         List<Employee> employees = new ArrayList<>();
         String query = "SELECT * FROM employee";
@@ -36,7 +31,7 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
                 String email = resultSet.getString("email");
                 String phone = resultSet.getString("phone");
                 Model.Role role = Model.Role.valueOf(resultSet.getString("role"));
-                Model.Poste poste = Poste.valueOf(resultSet.getString("poste"));
+                Poste poste = Poste.valueOf(resultSet.getString("poste"));
                 int holidayBalance = resultSet.getInt("holidayBalance");
                 Employee employee = new Employee(id, nom, prenom, salaire, email, phone, role, poste, holidayBalance);
                 employees.add(employee);
@@ -69,9 +64,8 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
 
         return holidays;
     }
-
     @Override
-    public void ajouter(Holiday holiday) {
+    public boolean ajouter(Holiday holiday) {
         String SQL = "INSERT INTO holiday (employee_id, type, start, end) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
             stmt.setInt(1, holiday.getIdEmployee());
@@ -82,7 +76,9 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
             HolidayView.success("Congé ajouté avec succéss !");
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
     
     @Override
@@ -125,7 +121,6 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
     public Employee findById(int EmployeeId) {
         String SQL = "SELECT * FROM employee WHERE id = ?";
         Employee employee = null;
-        EmployeeController.viderLesChamps();
         try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
             stmt.setInt(1, EmployeeId);
             try (ResultSet rset = stmt.executeQuery()) {                
@@ -137,7 +132,7 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
                     String email = rset.getString("email");
                     String phone = rset.getString("phone");
                     Model.Role role = Model.Role.valueOf(rset.getString("role"));
-                    Model.Poste poste = Poste.valueOf(rset.getString("poste"));
+                    Poste poste = Poste.valueOf(rset.getString("poste"));
                     int holidayBalance = rset.getInt("holidayBalance");
                     employee = new Employee(id, nom, prenom, salaire, email, phone, role, poste, holidayBalance);
                 }
@@ -158,7 +153,7 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
                 if (rset.next()) {
                     int id = rset.getInt("id");
                     int idEmployee = rset.getInt("employee_id");
-                    Model.HolidayType type = Model.HolidayType.valueOf(rset.getString("type"));
+                    HolidayType type = HolidayType.valueOf(rset.getString("type"));
                     String start = rset.getString("start");
                     String end = rset.getString("end");
                     holiday = new Holiday(id, idEmployee, type, start, end);
@@ -170,6 +165,28 @@ public class HolidayDAOImpl implements GeneriqueDAOI<Holiday> {
             e.printStackTrace();
         }
         return holiday;
+    }
+    public List<Holiday> findByIdLoggedHoliday(int EmployeeId) {
+        String SQL = "SELECT * FROM holiday WHERE employee_id = ?";
+        List<Holiday> holidays = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(SQL)) {
+            stmt.setInt(1, EmployeeId);
+            try (ResultSet rset = stmt.executeQuery()) {
+                while (rset.next()) {
+                    int id = rset.getInt("id");
+                    int idEmployee = rset.getInt("employee_id");
+                    HolidayType type = HolidayType.valueOf(rset.getString("type"));
+                    String start = rset.getString("start");
+                    String end = rset.getString("end");
+                    holidays.add(new Holiday(id, idEmployee, type, start, end));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return holidays;
     }
 }
 
