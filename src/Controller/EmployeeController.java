@@ -1,25 +1,34 @@
 package Controller;
-
 import java.util.List;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
+import DAO.DataImportExportDAOImpl;
+import DAO.LoginDAOImpl;
+import Model.DataImportExportModel;
 import Model.Employee;
 import Model.EmployeeModel;
 import Model.LoginModel;
 import Model.Poste;
 import Model.Role;
 import Utilities.Utils;
+import View.PanelsView;
 import View.EmployeeView;
+
+import View.LoginView;
 
 public class EmployeeController {
     protected EmployeeModel employeeModel;
     protected static EmployeeView employeeView;
     private static boolean isDeselecting = false;
     private Employee employeelogged;
+    public DataImportExportModel dataModel;
     public EmployeeController(EmployeeModel employeeModel, EmployeeView employeeView,Employee employee) {
         this.employeelogged = employee;
         this.employeeModel = employeeModel;
+        this.dataModel = new DataImportExportModel(new DataImportExportDAOImpl());
         EmployeeController.employeeView = employeeView;
         EmployeeController.employeeView.getAjouterButton().addActionListener(e -> this.ajouterEmployee());
         EmployeeController.employeeView.getAfficherButton().addActionListener(e -> {
@@ -37,6 +46,8 @@ public class EmployeeController {
         EmployeeController.employeeView.getCreerCompteButton().addActionListener(e -> new CreerController());
         EmployeeController.employeeView.getTable().getSelectionModel().addListSelectionListener(e -> this.setEmployeeInformations());
         EmployeeController.employeeView.getDeselectButton().addActionListener(e -> EmployeeController.deselectEmployee());
+        EmployeeController.employeeView.getImporterButton().addActionListener(e -> this.handleImport());
+        EmployeeController.employeeView.getExporterButton().addActionListener(e -> this.handleExport());
         if(employeelogged.getRole().equals(Role.ADMIN) || employeelogged.getRole().equals(Role.MANAGER)){
             this.afficherEmployee();
         }
@@ -65,7 +76,6 @@ public class EmployeeController {
             tableModel.addRow(new Object[]{e.getId(), e.getNom(), e.getPrenom(), e.getEmail(), e.getSalaire(), e.getPhone(), e.getRole(), e.getPoste(),e.getHolidayBalance()});
         }
     }
-
     public void supprimerEmployee() {
         int selectedRow = employeeView.getTable().getSelectedRow();
         if (selectedRow != -1) {
@@ -128,7 +138,7 @@ public class EmployeeController {
     }
     public static void viderLesChamps(){
         boolean check = LoginModel.getIsAdmin();
-        check = true;////// BINMA 9ADINA HOLIDAYS O LOGIN 
+        check = true;////// BINMA 9ADINA HOLIDAYS O LOGIN
         if(check == true){
             employeeView.getNomField().setText("");
             employeeView.getPrenomField().setText("");
@@ -176,5 +186,52 @@ public class EmployeeController {
         DefaultTableModel tableModel = (DefaultTableModel) employeeView.getTable().getModel();
         tableModel.setRowCount(0);
         tableModel.addRow(new Object[]{employeeloggeddb.getId(), employeeloggeddb.getNom(), employeeloggeddb.getPrenom(), employeeloggeddb.getEmail(), employeeloggeddb.getSalaire(), employeeloggeddb.getPhone(), employeeloggeddb.getRole(), employeeloggeddb.getPoste(),employeeloggeddb.getHolidayBalance()});
+    }
+    public static void Deconnexion(){
+        for (java.awt.Window window : java.awt.Window.getWindows()) {
+            if (window instanceof PanelsView) {
+            window.dispose();
+            }
+        }
+        new LoginController(new LoginModel(new LoginDAOImpl()), new LoginView());
+    }
+    public void handleImport() {
+        boolean succes ;
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Import Data");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Fichiers CSV","txt"));
+        if(fileChooser.showOpenDialog(employeeView) == JFileChooser.APPROVE_OPTION) {
+            try{
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                succes = dataModel.importData(fileName);
+                if (succes){
+                    EmployeeView.ImportationSuccess();
+                    this.afficherEmployee();
+                }else{
+                    EmployeeView.ImportationFail();
+                }
+            }catch(Exception ex){
+                EmployeeView.ImportationFail();
+            }
+        }
+    }
+    public void handleExport() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Export Data");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Fichiers CSV","txt"));
+        if(fileChooser.showSaveDialog(employeeView) == JFileChooser.APPROVE_OPTION) {
+            try{
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                if(!fileName.toLowerCase().endsWith(".txt")){
+                    fileName += ".txt";
+                }
+                List<Employee> employees = employeeModel.afficherEmployee();
+                dataModel.exportData(fileName, employees);
+                EmployeeView.ExportationSuccess();
+            }catch(Exception ex){
+                EmployeeView.ExportationFail();
+                ex.printStackTrace();
+            }
+        }
     }
 }

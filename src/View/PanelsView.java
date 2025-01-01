@@ -14,7 +14,10 @@ public class PanelsView extends JFrame {
         }
         return INSTANCE;
     }
-    private PanelsView(EmployeeView employeeView, HolidayView holidayView) {
+    public static PanelsView getInstance() {
+        return INSTANCE;
+    }
+    public PanelsView(EmployeeView employeeView, HolidayView holidayView) {
         this.employeeView = employeeView;
         this.holidayView = holidayView;
         setTitle("Admin Dashboard - Gestion des Employés et Congés");
@@ -27,5 +30,9 @@ public class PanelsView extends JFrame {
         tabbedPane.addTab("Gestion des Congés", holidayView.getContentPane());
         add(tabbedPane);
         setVisible(true);
+    }
+    public void ViewDispose() {
+        INSTANCE = null;
+        dispose();
     }
 }
