@@ -1,4 +1,4 @@
-package Utilities;
+package Model;
 
 public class Utils {
     public static double parseDouble(String s, double defaultValue) {
