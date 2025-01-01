@@ -25,7 +25,6 @@ public class LoginController {
         this.loginView = loginView;
         this.loginView.getLoginButton().addActionListener(e -> this.Login());
     }
-
     private void Login() {
         String username = loginView.getUsername();
         String password = loginView.getPassword();

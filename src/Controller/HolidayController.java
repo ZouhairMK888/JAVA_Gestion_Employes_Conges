@@ -18,6 +18,7 @@ public class HolidayController {
     private static HolidayView holidayView;
     private boolean isDeselecting = false;
     private Employee employeeLogged;
+
     public HolidayController(HolidayModel model, HolidayView view,Employee employee) {
         this.employeeLogged = employee;
         this.holidayModel = model;
@@ -125,7 +126,6 @@ public class HolidayController {
         holidayView.setDateDebut(holiday.getStart());
         holidayView.setDateFin(holiday.getEnd());
     }
-
     public void deselectHoliday() {
         isDeselecting = true;
         holidayView.getNomEmployeComboBox().setEnabled(true);

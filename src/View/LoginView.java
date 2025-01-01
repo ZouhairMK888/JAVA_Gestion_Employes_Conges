@@ -33,7 +33,7 @@ public class LoginView extends JFrame{
         InputsContainer.add(Password,3);
         ButtonsContainer.setLayout(new FlowLayout(FlowLayout.CENTER));
         Login.setPreferredSize(new Dimension(150, 30));
-        Login.setBackground(new Color(41, 144, 59));
+        Login.setBackground(new Color(0, 0, 255));
         Login.setForeground(Color.WHITE);
         ButtonsContainer.add(Login);
     }

@@ -4,7 +4,6 @@ import java.awt.*;
 import javax.swing.*;
 
 public class CreerView extends JFrame{
-
     private JPanel General = new JPanel();
     private JPanel InputsContainer = new JPanel();
     private JLabel UsernameLabel = new JLabel("Username");
@@ -13,8 +12,6 @@ public class CreerView extends JFrame{
     private JTextField Password = new JPasswordField();
     private JPanel ButtonsContainer = new JPanel();
     private JButton CreateAccount = new JButton("Créer un compte");
-    
-    
     public CreerView() {
         setTitle("Créer un compte");
         setSize(400, 300);
@@ -37,15 +34,12 @@ public class CreerView extends JFrame{
     public String getUsername() {
         return Username.getText();
     }
-    
     public void setUsername(String username) {
         Username.setText(username);
     }
-
     public String getPassword() {
         return Password.getText();
     }
-
     public void setPassword(String password) {
         Password.setText(password);
     }

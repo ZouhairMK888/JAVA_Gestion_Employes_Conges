@@ -9,14 +9,11 @@ import View.EmployeeView;
 public class CreerController {
     private CreerView creerView;
     private CreerModel creerModel;
-
     public CreerController(CreerModel creerModel, CreerView creerView) {
         this.creerView = creerView;
         this.creerModel = creerModel;
-        
         this.creerView.getCreateAccountButton().addActionListener(e -> CreateAccountCheck());
     }
-
     public CreerController() {
         if (EmployeeController.getId() != -1) {
             CreerModel cmodel = new CreerModel(new CreerDAOImpl());
@@ -26,7 +23,6 @@ public class CreerController {
             EmployeeView.ModifierFail("Veuillez choisir un employé.");
         }
     }
-
     private void CreateAccountCheck() {
         boolean isSuccess = creerCompte();
         if (isSuccess) {
@@ -34,7 +30,6 @@ public class CreerController {
             creerView.dispose();
         }
     }
-
     public boolean creerCompte() {
         int id = EmployeeController.getId();
         String username = creerView.getUsername().replaceAll("\\s", "_");

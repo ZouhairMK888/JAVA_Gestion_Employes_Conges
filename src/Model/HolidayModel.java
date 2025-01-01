@@ -110,12 +110,7 @@ public class HolidayModel {
                 return;
             }
         }
-        
-        public void modifierEmployeeBalanceRecover(int days,int EmployeeId) {
-            Employee employee = this.FindById(EmployeeId);
-            employee.setHolidayBalance(employee.getHolidayBalance() + days);
-            dao.modifierEmployeeBalance(employee, EmployeeId);
-        }
+
         public Holiday FindHolidayById(int holidayId) {
             return dao.FindHolidayById(holidayId);
         }
